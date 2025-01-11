@@ -1,16 +1,16 @@
 pipeline {
    agent none
   environment{
-      BUILD_SERVER_IP='ec2-user@172.31.9.51'
+      BUILD_SERVER_IP='ec2-user@3.8.192.129'
        IMAGE_NAME='praveenkumardova/java-mvn-privaterepos:php$BUILD_NUMBER'
-       DEPLOY_SERVER_IP='ec2-user@172.31.8.21'
+       DEPLOY_SERVER_IP='ec2-user@13.42.37.37'
    }
     stages {          
         stage('BUILD DOCKERIMAGE AND PUSH TO DOCKERHUB') {
             agent any            
             steps {
                 script{
-                sshagent(['slave2']) {
+                sshagent(['jenkins-slave2']) {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
                 echo "Packaging the apps"
                 sh "scp -o StrictHostKeyChecking=no -r docker-files ${BUILD_SERVER_IP}:/home/ec2-user"
@@ -27,7 +27,7 @@ pipeline {
            agent any
            steps{
                script{
-                    sshagent(['slave2']){
+                    sshagent(['jenkins-slave2']){
                          withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
                          sh "scp -o StrictHostKeyChecking=no -r docker-files ${DEPLOY_SERVER_IP}:/home/ec2-user"
                          sh "ssh -o StrictHostKeyChecking=no ${DEPLOY_SERVER_IP} 'bash ~/docker-files/docker-script.sh'"
